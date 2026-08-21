@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=yes">
 <title>Caderneta</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#FAF8F3">
@@ -32,7 +32,7 @@ body{
   font-size:16px; line-height:1.5;
   -webkit-font-smoothing:antialiased;
 }
-.wrap{max-width:520px;margin:0 auto;padding:0 18px calc(env(safe-area-inset-bottom) + 96px)}
+.wrap{max-width:520px;margin:0 auto;padding:0 18px calc(env(safe-area-inset-bottom) + 116px)}
 .mono{font-family:'Roboto Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
 
 header{padding:calc(env(safe-area-inset-top) + 26px) 0 0;text-align:center}
@@ -79,32 +79,49 @@ h2{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--soft
 .cat .track i{display:block;height:100%;background:var(--ink);opacity:.8}
 
 /* aba por dia */
-.readout{border:1px dashed var(--rule);border-radius:10px;padding:14px;text-align:center;margin-bottom:18px}
-.readout .big{font-family:'Roboto Mono',monospace;font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;display:block}
-.readout .sub{font-size:13px;color:var(--soft)}
-.readout .acao{margin-top:12px}
-.chart{display:flex;align-items:flex-end;gap:2px;height:170px;padding-top:6px}
-.dcol{flex:1 0 auto;min-width:8px;display:flex;flex-direction:column;justify-content:flex-end;height:100%;background:none;border:none;padding:0;gap:5px}
-.dcol i{display:block;width:100%;background:var(--ink);opacity:.85;border-radius:2px 2px 0 0;min-height:2px}
-.dcol em{font-style:normal;font-family:'Roboto Mono',monospace;font-size:9px;color:var(--soft);height:11px;line-height:11px}
-.dcol.over i{background:var(--stamp)}
-.dcol.zerado i{background:var(--soft);opacity:.3}
-.dcol.aberto i{background:none;border:1.5px dashed var(--stamp);border-radius:2px;opacity:.85}
-.dcol.futuro i{background:var(--rule);opacity:.5}
+.readout{background:var(--shade);border-radius:16px;padding:20px 18px;text-align:center;margin-bottom:22px}
+.readout .big{font-family:'Roboto Mono',monospace;font-size:32px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;display:block;line-height:1.1}
+.readout .sub{font-size:13px;color:var(--soft);display:block;margin-top:6px}
+.readout .acao{margin-top:14px}
+
+/* gráfico */
+.chartwrap{position:relative;padding:26px 0 0}
+.chart{display:flex;align-items:flex-end;gap:2px;height:172px;position:relative;z-index:1}
+.ritmo{position:absolute;left:0;right:0;border-top:1px dashed var(--soft);opacity:.55;z-index:2;pointer-events:none;display:none}
+.ritmo.on{display:block}
+.ritmo b{position:absolute;right:0;top:-9px;background:var(--paper);padding:0 5px;font-size:10px;font-weight:500;color:var(--soft);letter-spacing:.02em}
+.dcol{flex:1 1 0;min-width:0;display:flex;flex-direction:column;justify-content:flex-end;height:100%;background:none;border:none;padding:0;border-radius:5px 5px 0 0;transition:none}
+.dcol:active{transform:none}
+.dcol .track{flex:1;display:flex;align-items:flex-end;border-radius:5px 5px 0 0}
+.dcol i{display:block;width:100%;background:var(--ink);opacity:.78;border-radius:4px 4px 0 0;min-height:3px}
+.dcol em{font-style:normal;font-family:'Roboto Mono',monospace;font-size:10px;color:var(--soft);height:16px;line-height:16px;letter-spacing:-.03em}
+.dcol.over i{background:var(--stamp);opacity:1}
+.dcol.zerado i{background:var(--soft);opacity:.28;border-radius:2px}
+.dcol.aberto .track{background:var(--stamp);opacity:.11}
+.dcol.aberto i{background:var(--stamp);opacity:.55;border-radius:2px}
+.dcol.futuro i{background:var(--rule);opacity:.4;border-radius:2px}
 .dcol.hoje em{color:var(--ink);font-weight:700}
-.dcol.sel i{outline:2px solid var(--ink);outline-offset:2px}
-.axis{display:flex;justify-content:space-between;font-size:11px;color:var(--soft);border-top:1px solid var(--rule);padding-top:6px;margin-top:2px}
-.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:22px}
-.stat{background:var(--shade);border-radius:10px;padding:12px 10px;text-align:center}
-.stat b{display:block;font-family:'Roboto Mono',monospace;font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
-.stat b.alerta-cor{color:var(--stamp)}
-.stat span{font-size:11px;color:var(--soft);line-height:1.3;display:block;margin-top:3px}
-.legend{font-size:12px;color:var(--soft);margin-top:14px;line-height:1.7}
-.key{display:inline-block;width:11px;height:11px;border-radius:2px;vertical-align:-1px;margin-right:5px}
-.key.k1{background:var(--ink);opacity:.85}
+.dcol.sel i{opacity:1;box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--ink)}
+.dcol.sel em{color:var(--ink);font-weight:700}
+.semana{margin-left:7px}
+.eixo{border-top:1px solid var(--rule);margin-top:-16px;padding-top:0;height:0}
+
+/* legenda */
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.lg{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--soft);background:var(--shade);border-radius:20px;padding:5px 11px 5px 8px}
+.key{width:9px;height:9px;border-radius:2px;flex:none}
+.key.k1{background:var(--ink);opacity:.78}
 .key.k2{background:var(--stamp)}
-.key.k3{border:1.5px dashed var(--stamp)}
+.key.k3{background:var(--stamp);opacity:.3}
 .key.k4{background:var(--soft);opacity:.3}
+
+/* estatísticas */
+.stats{display:flex;background:var(--shade);border-radius:16px;overflow:hidden;margin-top:8px}
+.stat{flex:1;padding:16px 8px;text-align:center;position:relative}
+.stat + .stat::before{content:'';position:absolute;left:0;top:22%;bottom:22%;width:1px;background:var(--rule)}
+.stat b{display:block;font-family:'Roboto Mono',monospace;font-size:19px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.stat b.alerta-cor{color:var(--stamp)}
+.stat span{font-size:11px;color:var(--soft);line-height:1.3;display:block;margin-top:4px}
 
 /* aba fixos */
 .fixtotal{text-align:center;padding:18px 0 6px}
@@ -112,11 +129,22 @@ h2{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--soft
 .fixtotal span{font-size:13px;color:var(--soft)}
 .nota{font-size:13px;color:var(--soft);line-height:1.6;border-left:2px solid var(--rule);padding-left:12px;margin:20px 0}
 
-.tabs{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--card);border-top:1px solid var(--rule);
-  display:flex;padding-bottom:env(safe-area-inset-bottom)}
-.tabs button{flex:1;border:none;border-radius:0;background:none;padding:13px 4px 15px;color:var(--soft);font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
-.tabs button.on{color:var(--ink);box-shadow:inset 0 2px 0 var(--ink)}
-.tabs button .pip{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--stamp);vertical-align:2px;margin-left:3px}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:40;padding:0 14px calc(env(safe-area-inset-bottom) + 12px);
+  pointer-events:none;display:flex;justify-content:center}
+.tabbar{pointer-events:auto;display:flex;gap:4px;width:100%;max-width:420px;padding:5px;
+  background:var(--card);
+  background:color-mix(in srgb, var(--card) 88%, transparent);
+  -webkit-backdrop-filter:saturate(180%) blur(18px);backdrop-filter:saturate(180%) blur(18px);
+  border:1px solid var(--rule);border-radius:20px;box-shadow:0 6px 24px rgba(0,0,0,.10),0 1px 3px rgba(0,0,0,.06)}
+.tabbar button{flex:1;border:none;border-radius:16px;background:none;color:var(--soft);
+  padding:9px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;
+  font-size:11px;font-weight:500;letter-spacing:0;text-transform:none;transition:background .18s,color .18s}
+.tabbar button svg{width:21px;height:21px;display:block}
+.tabbar button.on{background:var(--ink);color:var(--paper)}
+.tabbar button .pip{position:absolute;top:7px;right:calc(50% - 17px);width:7px;height:7px;border-radius:50%;
+  background:var(--stamp);border:1.5px solid var(--card)}
+.tabbar button{position:relative}
+.tabbar button.on .pip{border-color:var(--ink)}
 .view{display:none}
 .view.on{display:block}
 
@@ -186,8 +214,11 @@ input:focus,select:focus{outline:2px solid var(--ink);outline-offset:-1px}
     <div class="acao" id="roAcao"></div>
   </div>
 
-  <div class="chart" id="chart"></div>
-  <div class="axis"><span id="axFrom">dia 1</span><span id="axTo">dia 31</span></div>
+  <div class="chartwrap">
+    <div class="ritmo" id="ritmo"><b id="ritmoTxt"></b></div>
+    <div class="chart" id="chart"></div>
+  </div>
+  <div class="eixo"></div>
   <div class="legend" id="legend"></div>
 
   <h2>No mês até agora</h2>
@@ -222,9 +253,20 @@ input:focus,select:focus{outline:2px solid var(--ink);outline-offset:-1px}
 </div>
 
 <nav class="tabs">
-  <button class="on" id="tabLista">Lançamentos</button>
-  <button id="tabDias">Por dia</button>
-  <button id="tabFixos">Fixos</button>
+  <div class="tabbar">
+    <button class="on" id="tabLista">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+      <span>Lançamentos</span>
+    </button>
+    <button id="tabDias">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 20v-6M12 20V6M18 20v-9"/></svg>
+      <span>Por dia</span><i class="pip" id="pipDias" hidden></i>
+    </button>
+    <button id="tabFixos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10a5 5 0 015-5h8"/><path d="M14 2l3 3-3 3"/><path d="M20 14a5 5 0 01-5 5H7"/><path d="M10 22l-3-3 3-3"/></svg>
+      <span>Fixos</span>
+    </button>
+  </div>
 </nav>
 
 <!-- folha: lançamento avulso -->
@@ -401,12 +443,12 @@ function renderAlerta(){
   }
 
   const pendentes = abertos.filter(d => d !== new Date().getDate());
-  if(pendentes.length === 0){ el.classList.remove('on'); $('tabDias').innerHTML = 'Por dia'; return; }
+  if(pendentes.length === 0){ el.classList.remove('on'); $('pipDias').hidden = true; return; }
 
   el.classList.add('on');
   el.innerHTML = `<b>${pendentes.length} dia${pendentes.length>1?'s':''} em aberto</b>
     <span>Sem lançamento e sem confirmação de que nada foi gasto. Toque para revisar.</span>`;
-  $('tabDias').innerHTML = 'Por dia<span class="pip"></span>';
+  $('pipDias').hidden = false;
 }
 $('alerta').onclick = () => trocarAba('dias');
 
@@ -470,36 +512,48 @@ function renderDias(mes){
   for(let i = 1; i <= totalDias; i++){
     const v = porDia[i];
     const s = iso(ano, mNum, i);
+    const dow = new Date(ano, mNum - 1, i).getDay();   // 0 = domingo
     const cls = ['dcol'];
-    let alt;
+    if(dow === 0 && i > 1) cls.push('semana');         // respiro no início de cada semana
+    let alt, rotulo;
 
     if(v > 0){
-      alt = pico > 0 ? Math.max(3, Math.round(v / pico * 100)) : 3;
+      alt = pico > 0 ? Math.max(4, Math.round(v / pico * 100)) : 4;
       if(ritmo > 0 && v > ritmo) cls.push('over');
+      rotulo = brl(v);
     } else if(i > diaHoje){
-      cls.push('futuro'); alt = 2;
+      cls.push('futuro'); alt = 3; rotulo = 'ainda não chegou';
     } else if(estaFechado(s)){
-      cls.push('zerado'); alt = 3;
+      cls.push('zerado'); alt = 3; rotulo = 'confirmado sem gasto';
     } else {
-      cls.push('aberto'); alt = 14;
+      cls.push('aberto'); alt = 8; rotulo = 'em aberto';
     }
 
     if(i === diaHoje) cls.push('hoje');
     if(i === diaSel) cls.push('sel');
-    const mostraNum = i === 1 || i % 5 === 0 || i === totalDias || i === diaHoje;
-    cols.push(`<button class="${cls.join(' ')}" data-d="${i}" aria-label="Dia ${i}: ${v>0?brl(v):(cls.includes('aberto')?'em aberto':'sem gasto')}">
-      <i style="height:${alt}%"></i><em>${mostraNum ? i : ''}</em></button>`);
+    const mostraNum = i === 1 || dow === 0 || i === totalDias || i === diaHoje;
+    cols.push(`<button class="${cls.join(' ')}" data-d="${i}" aria-label="Dia ${i}: ${rotulo}">
+      <span class="track"><i style="height:${alt}%"></i></span><em>${mostraNum ? i : ''}</em></button>`);
   }
   $('chart').innerHTML = cols.join('');
   $('chart').querySelectorAll('.dcol').forEach(b => b.onclick = () => selecionarDia(Number(b.dataset.d)));
 
-  $('axFrom').textContent = 'dia 1';
-  $('axTo').textContent = 'dia ' + totalDias;
+  // linha do ritmo diário, posicionada pela mesma escala das barras
+  const linha = $('ritmo');
+  if(ritmo > 0 && pico > 0 && ritmo < pico){
+    const alturaBarras = 172;
+    linha.style.bottom = (16 + (ritmo / pico) * (alturaBarras - 16)) + 'px';
+    $('ritmoTxt').textContent = `ritmo ${brl(ritmo)}/dia`;
+    linha.classList.add('on');
+  } else {
+    linha.classList.remove('on');
+  }
+
   $('legend').innerHTML =
-    `<span class="key k1"></span>gasto registrado<br>` +
-    (ritmo > 0 ? `<span class="key k2"></span>acima do ritmo de ${brl(ritmo)}/dia<br>` : '') +
-    `<span class="key k3"></span>dia em aberto — falta confirmar<br>` +
-    `<span class="key k4"></span>confirmado sem gasto`;
+    `<span class="lg"><span class="key k1"></span>gasto registrado</span>` +
+    (ritmo > 0 ? `<span class="lg"><span class="key k2"></span>acima do ritmo</span>` : '') +
+    `<span class="lg"><span class="key k3"></span>em aberto</span>` +
+    `<span class="lg"><span class="key k4"></span>sem gasto</span>`;
 
   const ateHoje = porDia.slice(1, diaHoje + 1);
   const somaAte = ateHoje.reduce((s,v)=>s+v, 0);

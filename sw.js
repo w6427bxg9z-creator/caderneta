@@ -1,4 +1,4 @@
-const CACHE = 'caderneta-v1';
+const CACHE = 'caderneta-v3';
 const ARQUIVOS = [
   './',
   './index.html',
@@ -24,11 +24,30 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
 
+  const url = new URL(e.request.url);
+  const ehPagina = e.request.mode === 'navigate' ||
+                   url.pathname.endsWith('/') ||
+                   url.pathname.endsWith('index.html');
+
+  if (ehPagina) {
+    // rede primeiro: com internet, você sempre pega a versão mais nova
+    e.respondWith(
+      fetch(e.request)
+        .then(resp => {
+          const copia = resp.clone();
+          caches.open(CACHE).then(c => c.put(e.request, copia)).catch(() => {});
+          return resp;
+        })
+        .catch(() => caches.match(e.request).then(hit => hit || caches.match('./index.html')))
+    );
+    return;
+  }
+
+  // resto (ícones, fontes, motor de OCR): cache primeiro, que é o que faz o app abrir rápido
   e.respondWith(
     caches.match(e.request).then(hit => {
       if (hit) return hit;
       return fetch(e.request).then(resp => {
-        // guarda o que der (inclui os arquivos do Tesseract vindos do CDN)
         if (resp && resp.status === 200) {
           const copia = resp.clone();
           caches.open(CACHE).then(c => c.put(e.request, copia)).catch(() => {});
