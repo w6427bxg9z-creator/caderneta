@@ -166,6 +166,8 @@ input:focus,select:focus{outline:2px solid var(--ink);outline-offset:-1px}
 .spin{width:15px;height:15px;border:2px solid var(--rule);border-top-color:var(--ink);border-radius:50%;animation:sp .7s linear infinite;flex:none}
 @keyframes sp{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion: reduce){.spin{animation:none}.bar>i{transition:none}}
+.recado{font-style:italic;font-size:15px;color:var(--soft);text-align:center;line-height:1.4}
+.recado.grande{font-size:17px;color:var(--ink);opacity:.75}
 .foot{text-align:center;padding:26px 0 10px}
 .foot .stamp{display:inline-block;border:2px solid var(--stamp);color:var(--stamp);font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;padding:5px 12px;border-radius:4px;transform:rotate(-3deg);opacity:.75}
 </style>
@@ -202,7 +204,8 @@ input:focus,select:focus{outline:2px solid var(--ink);outline-offset:-1px}
   <div class="foot">
     <button class="link" id="btnExport">Baixar backup .csv</button>
     <button class="link" id="btnLimite">Definir limite mensal</button>
-    <div style="margin-top:18px"><span class="stamp" id="stamp">Em dia</span></div>
+    <div class="recado" id="recadoFoot" style="margin-top:22px"></div>
+    <div style="margin-top:14px"><span class="stamp" id="stamp">Em dia</span></div>
   </div>
 </section>
 
@@ -319,6 +322,7 @@ input:focus,select:focus{outline:2px solid var(--ink);outline-offset:-1px}
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script>
 const CATS = ['Mercado','Comer fora','Transporte','Casa','Saúde','Lazer','Compras','Outro'];
+const RECADO = 'Anota os gastos futuzim';
 const KEY  = 'caderneta.v1';
 const BKEY = 'caderneta.limite';
 const RKEY = 'caderneta.fixos';
@@ -447,7 +451,7 @@ function renderAlerta(){
 
   el.classList.add('on');
   el.innerHTML = `<b>${pendentes.length} dia${pendentes.length>1?'s':''} em aberto</b>
-    <span>Sem lançamento e sem confirmação de que nada foi gasto. Toque para revisar.</span>`;
+    <span>${RECADO} — toque para revisar o que ficou para trás.</span>`;
   $('pipDias').hidden = false;
 }
 $('alerta').onclick = () => trocarAba('dias');
@@ -460,7 +464,7 @@ $('btnFecharHoje').onclick = () => {
 function renderLista(mes){
   const lista = $('lista');
   if(mes.length === 0){
-    lista.innerHTML = '<div class="empty">Nada lançado neste mês.<br>Comece pelo botão acima.</div>';
+    lista.innerHTML = `<div class="empty"><span class="recado grande">${RECADO}</span><br><br>Nada lançado neste mês ainda.</div>`;
     return;
   }
   const ord = [...mes].sort((a,b)=> b.data.localeCompare(a.data) || b.id - a.id);
@@ -798,6 +802,7 @@ $('btnExport').onclick = () => {
 
 // ---------- boot ----------
 carregar();
+$('recadoFoot').textContent = RECADO;
 aplicarFixos();
 pickCat(catSel);
 pickCatFixo(catFixo);
