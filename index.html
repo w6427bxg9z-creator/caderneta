@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>Caderneta</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#FAF8F3">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Caderneta">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FAF8F3; --card:#FFFFFF; --ink:#1A1A17; --soft:#6E6A60;
+  --rule:#DDD8CC; --stamp:#C0392B; --ok:#2F6B4F; --shade:#F1EEE6;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --paper:#16150F; --card:#201E17; --ink:#F2EFE6; --soft:#9A958A;
+    --rule:#333026; --stamp:#E4645A; --ok:#6BBF93; --shade:#1B1913;
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:'Archivo',-apple-system,system-ui,sans-serif;
+  font-size:16px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:520px;margin:0 auto;padding:0 18px calc(env(safe-area-inset-bottom) + 96px)}
+.mono{font-family:'Roboto Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+
+header{padding:calc(env(safe-area-inset-top) + 26px) 0 0;text-align:center}
+.brand{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--soft);font-weight:600}
+.period{font-size:12px;color:var(--soft);margin-top:2px}
+.total{font-family:'Roboto Mono',monospace;font-size:44px;font-weight:700;letter-spacing:-.02em;margin:14px 0 2px;font-variant-numeric:tabular-nums}
+.total.over{color:var(--stamp)}
+.budgetline{font-size:13px;color:var(--soft)}
+.bar{height:5px;background:var(--shade);border-radius:3px;margin:14px 0 0;overflow:hidden}
+.bar > i{display:block;height:100%;background:var(--ok);width:0;transition:width .35s ease}
+.bar > i.over{background:var(--stamp)}
+.tear{height:14px;margin:20px -18px 0;
+  background:radial-gradient(circle at 7px 7px, transparent 6px, var(--rule) 6px, var(--rule) 6.6px, transparent 6.7px) repeat-x;
+  background-size:14px 14px}
+
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:22px 0 8px}
+button{font-family:inherit;font-size:15px;font-weight:500;border-radius:10px;cursor:pointer;border:1px solid var(--rule);background:var(--card);color:var(--ink);padding:14px 12px;transition:transform .1s}
+button:active{transform:scale(.98)}
+button.primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+button.ghost{background:transparent}
+button.small{font-size:13px;padding:10px 14px}
+button.link{border:none;background:none;color:var(--soft);font-size:13px;padding:6px;text-decoration:underline}
+
+/* aviso de dias em aberto */
+.alerta{display:none;width:100%;text-align:left;border:1px solid var(--stamp);border-radius:10px;padding:13px 15px;margin:18px 0 0;background:transparent;color:var(--ink);font-size:14px;font-weight:400}
+.alerta.on{display:block}
+.alerta b{display:block;font-weight:600;font-size:14px;margin-bottom:2px;color:var(--stamp)}
+.alerta span{font-size:13px;color:var(--soft)}
+
+h2{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--soft);font-weight:600;margin:30px 0 10px}
+.row{display:flex;align-items:baseline;gap:8px;padding:13px 0;border-bottom:1px dashed var(--rule)}
+.row .desc{flex:1;min-width:0}
+.row .desc b{display:block;font-weight:500;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .desc span{font-size:12px;color:var(--soft)}
+.row .amt{font-family:'Roboto Mono',monospace;font-weight:500;font-size:15px;font-variant-numeric:tabular-nums}
+.row .del{border:none;background:none;color:var(--soft);font-size:20px;line-height:1;padding:0 2px 0 6px;width:auto}
+.tagfix{display:inline-block;border:1px solid var(--rule);border-radius:4px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:1px 5px;margin-left:5px;color:var(--soft);vertical-align:1px}
+.empty{text-align:center;color:var(--soft);font-size:14px;padding:38px 10px;border:1px dashed var(--rule);border-radius:10px}
+
+.cat{margin-bottom:12px}
+.cat .top{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px}
+.cat .top span:last-child{font-family:'Roboto Mono',monospace;font-variant-numeric:tabular-nums}
+.cat .track{height:8px;background:var(--shade);border-radius:4px;overflow:hidden}
+.cat .track i{display:block;height:100%;background:var(--ink);opacity:.8}
+
+/* aba por dia */
+.readout{border:1px dashed var(--rule);border-radius:10px;padding:14px;text-align:center;margin-bottom:18px}
+.readout .big{font-family:'Roboto Mono',monospace;font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;display:block}
+.readout .sub{font-size:13px;color:var(--soft)}
+.readout .acao{margin-top:12px}
+.chart{display:flex;align-items:flex-end;gap:2px;height:170px;padding-top:6px}
+.dcol{flex:1 0 auto;min-width:8px;display:flex;flex-direction:column;justify-content:flex-end;height:100%;background:none;border:none;padding:0;gap:5px}
+.dcol i{display:block;width:100%;background:var(--ink);opacity:.85;border-radius:2px 2px 0 0;min-height:2px}
+.dcol em{font-style:normal;font-family:'Roboto Mono',monospace;font-size:9px;color:var(--soft);height:11px;line-height:11px}
+.dcol.over i{background:var(--stamp)}
+.dcol.zerado i{background:var(--soft);opacity:.3}
+.dcol.aberto i{background:none;border:1.5px dashed var(--stamp);border-radius:2px;opacity:.85}
+.dcol.futuro i{background:var(--rule);opacity:.5}
+.dcol.hoje em{color:var(--ink);font-weight:700}
+.dcol.sel i{outline:2px solid var(--ink);outline-offset:2px}
+.axis{display:flex;justify-content:space-between;font-size:11px;color:var(--soft);border-top:1px solid var(--rule);padding-top:6px;margin-top:2px}
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:22px}
+.stat{background:var(--shade);border-radius:10px;padding:12px 10px;text-align:center}
+.stat b{display:block;font-family:'Roboto Mono',monospace;font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
+.stat b.alerta-cor{color:var(--stamp)}
+.stat span{font-size:11px;color:var(--soft);line-height:1.3;display:block;margin-top:3px}
+.legend{font-size:12px;color:var(--soft);margin-top:14px;line-height:1.7}
+.key{display:inline-block;width:11px;height:11px;border-radius:2px;vertical-align:-1px;margin-right:5px}
+.key.k1{background:var(--ink);opacity:.85}
+.key.k2{background:var(--stamp)}
+.key.k3{border:1.5px dashed var(--stamp)}
+.key.k4{background:var(--soft);opacity:.3}
+
+/* aba fixos */
+.fixtotal{text-align:center;padding:18px 0 6px}
+.fixtotal b{font-family:'Roboto Mono',monospace;font-size:30px;font-weight:700;display:block;font-variant-numeric:tabular-nums}
+.fixtotal span{font-size:13px;color:var(--soft)}
+.nota{font-size:13px;color:var(--soft);line-height:1.6;border-left:2px solid var(--rule);padding-left:12px;margin:20px 0}
+
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--card);border-top:1px solid var(--rule);
+  display:flex;padding-bottom:env(safe-area-inset-bottom)}
+.tabs button{flex:1;border:none;border-radius:0;background:none;padding:13px 4px 15px;color:var(--soft);font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+.tabs button.on{color:var(--ink);box-shadow:inset 0 2px 0 var(--ink)}
+.tabs button .pip{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--stamp);vertical-align:2px;margin-left:3px}
+.view{display:none}
+.view.on{display:block}
+
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;z-index:50}
+.sheet.on{display:flex}
+.sheet .panel{background:var(--card);width:100%;max-height:92vh;overflow-y:auto;border-radius:18px 18px 0 0;padding:22px 18px calc(env(safe-area-inset-bottom) + 22px);max-width:520px;margin:0 auto}
+.sheet h3{margin:0 0 18px;font-size:17px;font-weight:600}
+label{display:block;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);font-weight:600;margin:0 0 6px}
+input,select{width:100%;font-family:inherit;font-size:17px;padding:13px 14px;border:1px solid var(--rule);border-radius:10px;background:var(--paper);color:var(--ink);margin-bottom:16px}
+input[inputmode="decimal"],input[inputmode="numeric"]{font-family:'Roboto Mono',monospace;font-weight:500}
+input:focus,select:focus{outline:2px solid var(--ink);outline-offset:-1px}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}
+.chip{border:1px solid var(--rule);border-radius:20px;padding:9px 14px;font-size:14px;background:transparent}
+.chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.err{color:var(--stamp);font-size:13px;margin:-8px 0 14px;display:none}
+.err.on{display:block}
+.ocr{display:none;align-items:center;gap:10px;font-size:13px;color:var(--soft);background:var(--shade);border-radius:10px;padding:12px 14px;margin-bottom:16px}
+.ocr.on{display:flex}
+.spin{width:15px;height:15px;border:2px solid var(--rule);border-top-color:var(--ink);border-radius:50%;animation:sp .7s linear infinite;flex:none}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){.spin{animation:none}.bar>i{transition:none}}
+.foot{text-align:center;padding:26px 0 10px}
+.foot .stamp{display:inline-block;border:2px solid var(--stamp);color:var(--stamp);font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;padding:5px 12px;border-radius:4px;transform:rotate(-3deg);opacity:.75}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="brand">Caderneta</div>
+  <div class="period" id="period">—</div>
+  <div class="total mono" id="total">R$ 0,00</div>
+  <div class="budgetline" id="budgetline">Toque para definir um limite mensal</div>
+  <div class="bar"><i id="bar"></i></div>
+</header>
+<div class="tear"></div>
+
+<!-- ========== ABA 1: LANÇAMENTOS ========== -->
+<section class="view on" id="viewLista">
+  <button class="alerta" id="alerta"></button>
+
+  <div class="actions">
+    <button class="primary" id="btnNovo">Novo lançamento</button>
+    <button class="ghost" id="btnFoto">Ler recibo</button>
+  </div>
+  <input type="file" id="fileInput" accept="image/*" capture="environment" hidden>
+  <button class="ghost small" id="btnFecharHoje" style="width:100%;margin-top:10px">Não gastei nada hoje</button>
+
+  <h2>Lançamentos do mês</h2>
+  <div id="lista"></div>
+
+  <h2>Onde foi o dinheiro</h2>
+  <div id="cats"></div>
+
+  <div class="foot">
+    <button class="link" id="btnExport">Baixar backup .csv</button>
+    <button class="link" id="btnLimite">Definir limite mensal</button>
+    <div style="margin-top:18px"><span class="stamp" id="stamp">Em dia</span></div>
+  </div>
+</section>
+
+<!-- ========== ABA 2: POR DIA ========== -->
+<section class="view" id="viewDias">
+  <div class="readout" id="readout">
+    <span class="big mono" id="roValor">R$ 0,00</span>
+    <span class="sub" id="roSub">Toque numa barra para ver o dia</span>
+    <div class="acao" id="roAcao"></div>
+  </div>
+
+  <div class="chart" id="chart"></div>
+  <div class="axis"><span id="axFrom">dia 1</span><span id="axTo">dia 31</span></div>
+  <div class="legend" id="legend"></div>
+
+  <h2>No mês até agora</h2>
+  <div class="stats">
+    <div class="stat"><b class="mono" id="stMedia">—</b><span>média por dia</span></div>
+    <div class="stat"><b class="mono" id="stPico">—</b><span>dia mais caro</span></div>
+    <div class="stat"><b class="mono" id="stAberto">—</b><span>dias em aberto</span></div>
+  </div>
+
+  <h2>Detalhe do dia</h2>
+  <div id="listaDia"><div class="empty">Escolha um dia no gráfico acima.</div></div>
+</section>
+
+<!-- ========== ABA 3: FIXOS ========== -->
+<section class="view" id="viewFixos">
+  <div class="fixtotal">
+    <b class="mono" id="fixTotal">R$ 0,00</b>
+    <span>por mês, lançado sozinho</span>
+  </div>
+
+  <button class="primary" id="btnNovoFixo" style="width:100%;margin-top:12px">Novo gasto fixo</button>
+
+  <div class="nota">
+    Aluguel, internet, academia, assinaturas. Cadastre uma vez e o app lança
+    sozinho todo mês no dia que você escolher — some da sua lista de coisas para lembrar.
+  </div>
+
+  <h2>Seus fixos</h2>
+  <div id="listaFixos"></div>
+</section>
+
+</div>
+
+<nav class="tabs">
+  <button class="on" id="tabLista">Lançamentos</button>
+  <button id="tabDias">Por dia</button>
+  <button id="tabFixos">Fixos</button>
+</nav>
+
+<!-- folha: lançamento avulso -->
+<div class="sheet" id="sheetNovo">
+  <div class="panel">
+    <h3>Novo lançamento</h3>
+    <div class="ocr" id="ocrBox"><span class="spin"></span><span id="ocrMsg">Lendo o recibo…</span></div>
+
+    <label for="fValor">Valor</label>
+    <input id="fValor" inputmode="decimal" placeholder="0,00">
+
+    <label for="fDesc">Descrição</label>
+    <input id="fDesc" placeholder="Padaria da esquina">
+
+    <label>Categoria</label>
+    <div class="chips" id="chips"></div>
+
+    <label for="fData">Data</label>
+    <input id="fData" type="date">
+
+    <div class="err" id="fErr"></div>
+    <button class="primary" id="btnSalvar" style="width:100%;margin-bottom:8px">Salvar</button>
+    <button class="ghost" id="btnCancelar" style="width:100%">Cancelar</button>
+  </div>
+</div>
+
+<!-- folha: gasto fixo -->
+<div class="sheet" id="sheetFixo">
+  <div class="panel">
+    <h3>Novo gasto fixo</h3>
+
+    <label for="xValor">Valor</label>
+    <input id="xValor" inputmode="decimal" placeholder="0,00">
+
+    <label for="xDesc">Descrição</label>
+    <input id="xDesc" placeholder="Internet fibra">
+
+    <label>Categoria</label>
+    <div class="chips" id="chipsFixo"></div>
+
+    <label for="xDia">Dia do mês em que sai</label>
+    <input id="xDia" inputmode="numeric" placeholder="10" maxlength="2">
+
+    <div class="err" id="xErr"></div>
+    <button class="primary" id="btnSalvarFixo" style="width:100%;margin-bottom:8px">Salvar</button>
+    <button class="ghost" id="btnCancelarFixo" style="width:100%">Cancelar</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script>
+const CATS = ['Mercado','Comer fora','Transporte','Casa','Saúde','Lazer','Compras','Outro'];
+const KEY  = 'caderneta.v1';
+const BKEY = 'caderneta.limite';
+const RKEY = 'caderneta.fixos';
+const LKEY = 'caderneta.fixlog';
+const FKEY = 'caderneta.fechados';
+
+let dados = [], fixos = [], fixlog = [], fechados = [];
+let limite = 0, catSel = CATS[0], catFixo = CATS[3], diaSel = null;
+
+const $ = id => document.getElementById(id);
+const brl = n => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(n);
+const brlCurto = n => n >= 1000 ? 'R$ ' + (n/1000).toFixed(1).replace('.',',') + 'k' : brl(n);
+const pad = n => String(n).padStart(2,'0');
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const iso = (a,m,d) => `${a}-${pad(m)}-${pad(d)}`;
+
+function ler(k, fb){ try{ return JSON.parse(localStorage.getItem(k)) ?? fb; }catch(e){ return fb; } }
+function gravar(k, v){
+  try{ localStorage.setItem(k, JSON.stringify(v)); }
+  catch(e){ alert('Não consegui salvar. O armazenamento do navegador pode estar cheio.'); }
+}
+function carregar(){
+  dados    = ler(KEY, []);
+  fixos    = ler(RKEY, []);
+  fixlog   = ler(LKEY, []);
+  fechados = ler(FKEY, []);
+  limite   = parseFloat(localStorage.getItem(BKEY) || '0') || 0;
+}
+let seqId = 0;
+const novoId = () => Date.now() * 100 + (seqId++ % 100);
+
+// ---------- gastos fixos: lançamento automático ----------
+function aplicarFixos(){
+  const hoje = new Date();
+  const a = hoje.getFullYear(), m = hoje.getMonth() + 1;
+  const ultimo = new Date(a, m, 0).getDate();
+  const marca = `${a}-${pad(m)}`;
+  let mudou = false;
+
+  fixos.forEach(f => {
+    const dia = Math.min(f.dia, ultimo);          // dia 31 em fevereiro vira o último dia
+    if(hoje.getDate() < dia) return;              // ainda não chegou
+    const chave = `${f.id}|${marca}`;
+    if(fixlog.includes(chave)) return;            // já lançado neste mês
+    dados.push({ id: novoId(), valor: f.valor, desc: f.desc, cat: f.cat, data: iso(a,m,dia), fixo: f.id });
+    fixlog.push(chave);
+    mudou = true;
+  });
+
+  if(mudou){ gravar(KEY, dados); gravar(LKEY, fixlog); }
+}
+
+// ---------- fechamento de dia ----------
+const estaFechado = d => fechados.includes(d);
+function alternarFechado(d){
+  if(estaFechado(d)) fechados = fechados.filter(x => x !== d);
+  else fechados.push(d);
+  gravar(FKEY, fechados);
+  render();
+}
+function diasEmAberto(){
+  const hoje = new Date();
+  const a = hoje.getFullYear(), m = hoje.getMonth() + 1;
+  const abertos = [];
+  for(let d = 1; d <= hoje.getDate(); d++){
+    const s = iso(a,m,d);
+    const temGasto = dados.some(x => x.data === s);
+    if(!temGasto && !estaFechado(s)) abertos.push(d);
+  }
+  return abertos;
+}
+
+function doMes(){
+  const hoje = new Date();
+  const m = hoje.getMonth(), a = hoje.getFullYear();
+  return dados.filter(d => { const x = new Date(d.data + 'T12:00'); return x.getMonth()===m && x.getFullYear()===a; });
+}
+
+// ---------- render ----------
+function render(){
+  const mes = doMes();
+  const total = mes.reduce((s,d)=>s+d.valor,0);
+  const estourou = limite > 0 && total > limite;
+
+  $('period').textContent = new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+  $('total').textContent = brl(total);
+  $('total').classList.toggle('over', estourou);
+
+  if(limite > 0){
+    const resta = limite - total;
+    $('budgetline').textContent = resta >= 0
+      ? `Restam ${brl(resta)} de ${brl(limite)}`
+      : `${brl(-resta)} acima do limite de ${brl(limite)}`;
+    $('bar').style.width = Math.min(100, Math.round(total/limite*100)) + '%';
+    $('bar').classList.toggle('over', estourou);
+  } else {
+    $('budgetline').textContent = 'Toque para definir um limite mensal';
+    $('bar').style.width = '0%';
+  }
+  $('stamp').textContent = estourou ? 'Estourou' : 'Em dia';
+  $('stamp').style.borderColor = $('stamp').style.color = estourou ? 'var(--stamp)' : 'var(--ok)';
+
+  renderAlerta();
+  renderLista(mes);
+  renderCats(mes);
+  renderDias(mes);
+  renderFixos();
+}
+
+function renderAlerta(){
+  const abertos = diasEmAberto();
+  const hojeIso = iso(new Date().getFullYear(), new Date().getMonth()+1, new Date().getDate());
+  const el = $('alerta');
+
+  // botão "não gastei nada hoje"
+  const btn = $('btnFecharHoje');
+  const temGastoHoje = dados.some(x => x.data === hojeIso);
+  if(temGastoHoje){ btn.style.display = 'none'; }
+  else {
+    btn.style.display = '';
+    btn.textContent = estaFechado(hojeIso) ? 'Hoje marcado como dia sem gasto ✓' : 'Não gastei nada hoje';
+  }
+
+  const pendentes = abertos.filter(d => d !== new Date().getDate());
+  if(pendentes.length === 0){ el.classList.remove('on'); $('tabDias').innerHTML = 'Por dia'; return; }
+
+  el.classList.add('on');
+  el.innerHTML = `<b>${pendentes.length} dia${pendentes.length>1?'s':''} em aberto</b>
+    <span>Sem lançamento e sem confirmação de que nada foi gasto. Toque para revisar.</span>`;
+  $('tabDias').innerHTML = 'Por dia<span class="pip"></span>';
+}
+$('alerta').onclick = () => trocarAba('dias');
+
+$('btnFecharHoje').onclick = () => {
+  const h = new Date();
+  alternarFechado(iso(h.getFullYear(), h.getMonth()+1, h.getDate()));
+};
+
+function renderLista(mes){
+  const lista = $('lista');
+  if(mes.length === 0){
+    lista.innerHTML = '<div class="empty">Nada lançado neste mês.<br>Comece pelo botão acima.</div>';
+    return;
+  }
+  const ord = [...mes].sort((a,b)=> b.data.localeCompare(a.data) || b.id - a.id);
+  lista.innerHTML = ord.map(linhaHTML).join('');
+  ligarDeletes(lista);
+}
+
+function linhaHTML(d){
+  return `<div class="row">
+    <div class="desc">
+      <b>${esc(d.desc)}${d.fixo ? '<span class="tagfix">fixo</span>' : ''}</b>
+      <span>${esc(d.cat)} · ${new Date(d.data+'T12:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}</span>
+    </div>
+    <div class="amt">${brl(d.valor)}</div>
+    <button class="del" data-id="${d.id}" aria-label="Apagar ${esc(d.desc)}">×</button>
+  </div>`;
+}
+function ligarDeletes(el){
+  el.querySelectorAll('.del').forEach(b => b.onclick = () => apagar(Number(b.dataset.id)));
+}
+
+function renderCats(mes){
+  const soma = {};
+  mes.forEach(d => soma[d.cat] = (soma[d.cat]||0) + d.valor);
+  const pares = Object.entries(soma).sort((a,b)=>b[1]-a[1]);
+  const teto = pares.length ? pares[0][1] : 1;
+  $('cats').innerHTML = pares.length === 0
+    ? '<div class="empty">Sem dados ainda.</div>'
+    : pares.map(([c,v]) => `
+      <div class="cat">
+        <div class="top"><span>${esc(c)}</span><span>${brl(v)}</span></div>
+        <div class="track"><i style="width:${Math.round(v/teto*100)}%"></i></div>
+      </div>`).join('');
+}
+
+function renderDias(mes){
+  const hoje = new Date();
+  const ano = hoje.getFullYear(), mNum = hoje.getMonth() + 1;
+  const totalDias = new Date(ano, mNum, 0).getDate();
+  const diaHoje = hoje.getDate();
+
+  const porDia = new Array(totalDias + 1).fill(0);
+  mes.forEach(d => { porDia[Number(d.data.slice(8,10))] += d.valor; });
+
+  const pico = Math.max(...porDia.slice(1), 0);
+  const ritmo = limite > 0 ? limite / totalDias : 0;
+
+  const cols = [];
+  for(let i = 1; i <= totalDias; i++){
+    const v = porDia[i];
+    const s = iso(ano, mNum, i);
+    const cls = ['dcol'];
+    let alt;
+
+    if(v > 0){
+      alt = pico > 0 ? Math.max(3, Math.round(v / pico * 100)) : 3;
+      if(ritmo > 0 && v > ritmo) cls.push('over');
+    } else if(i > diaHoje){
+      cls.push('futuro'); alt = 2;
+    } else if(estaFechado(s)){
+      cls.push('zerado'); alt = 3;
+    } else {
+      cls.push('aberto'); alt = 14;
+    }
+
+    if(i === diaHoje) cls.push('hoje');
+    if(i === diaSel) cls.push('sel');
+    const mostraNum = i === 1 || i % 5 === 0 || i === totalDias || i === diaHoje;
+    cols.push(`<button class="${cls.join(' ')}" data-d="${i}" aria-label="Dia ${i}: ${v>0?brl(v):(cls.includes('aberto')?'em aberto':'sem gasto')}">
+      <i style="height:${alt}%"></i><em>${mostraNum ? i : ''}</em></button>`);
+  }
+  $('chart').innerHTML = cols.join('');
+  $('chart').querySelectorAll('.dcol').forEach(b => b.onclick = () => selecionarDia(Number(b.dataset.d)));
+
+  $('axFrom').textContent = 'dia 1';
+  $('axTo').textContent = 'dia ' + totalDias;
+  $('legend').innerHTML =
+    `<span class="key k1"></span>gasto registrado<br>` +
+    (ritmo > 0 ? `<span class="key k2"></span>acima do ritmo de ${brl(ritmo)}/dia<br>` : '') +
+    `<span class="key k3"></span>dia em aberto — falta confirmar<br>` +
+    `<span class="key k4"></span>confirmado sem gasto`;
+
+  const ateHoje = porDia.slice(1, diaHoje + 1);
+  const somaAte = ateHoje.reduce((s,v)=>s+v, 0);
+  const abertos = diasEmAberto().length;
+  $('stMedia').textContent = diaHoje ? brlCurto(somaAte / diaHoje) : '—';
+  $('stPico').textContent = pico > 0 ? brlCurto(pico) : '—';
+  $('stAberto').textContent = abertos;
+  $('stAberto').classList.toggle('alerta-cor', abertos > 0);
+
+  if(diaSel && diaSel <= totalDias) mostrarDia(diaSel, porDia[diaSel], mes, ano, mNum, diaHoje);
+  else {
+    $('roValor').textContent = brl(porDia[diaHoje] || 0);
+    $('roSub').textContent = 'hoje · toque numa barra para trocar de dia';
+    $('roAcao').innerHTML = '';
+    $('listaDia').innerHTML = '<div class="empty">Escolha um dia no gráfico acima.</div>';
+  }
+}
+
+function selecionarDia(d){
+  diaSel = (diaSel === d) ? null : d;
+  renderDias(doMes());
+}
+
+function mostrarDia(dia, valor, mes, ano, mNum, diaHoje){
+  const s = iso(ano, mNum, dia);
+  const dt = new Date(ano, mNum - 1, dia);
+  const itens = mes.filter(x => Number(x.data.slice(8,10)) === dia).sort((a,b)=>b.valor-a.valor);
+
+  $('roValor').textContent = brl(valor);
+  let sub = dt.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+  if(itens.length) sub += ` · ${itens.length} lançamento${itens.length>1?'s':''}`;
+  else if(dia > diaHoje) sub += ' · ainda não chegou';
+  else if(estaFechado(s)) sub += ' · confirmado sem gasto';
+  else sub += ' · em aberto';
+  $('roSub').textContent = sub;
+
+  if(itens.length === 0 && dia <= diaHoje){
+    $('roAcao').innerHTML = estaFechado(s)
+      ? `<button class="ghost small" id="btnAbrir">Reabrir este dia</button>`
+      : `<button class="primary small" id="btnFechar">Não gastei nada neste dia</button>`;
+    const b = $('btnFechar') || $('btnAbrir');
+    if(b) b.onclick = () => alternarFechado(s);
+  } else {
+    $('roAcao').innerHTML = '';
+  }
+
+  $('listaDia').innerHTML = itens.length
+    ? itens.map(linhaHTML).join('')
+    : `<div class="empty">${dia > diaHoje ? 'Dia futuro.' : 'Nenhum gasto neste dia.'}</div>`;
+  ligarDeletes($('listaDia'));
+}
+
+function renderFixos(){
+  const soma = fixos.reduce((s,f)=>s+f.valor, 0);
+  $('fixTotal').textContent = brl(soma);
+
+  $('listaFixos').innerHTML = fixos.length === 0
+    ? '<div class="empty">Nenhum gasto fixo cadastrado.<br>Comece pelo aluguel ou pelas assinaturas.</div>'
+    : [...fixos].sort((a,b)=>a.dia-b.dia).map(f => `
+      <div class="row">
+        <div class="desc">
+          <b>${esc(f.desc)}</b>
+          <span>${esc(f.cat)} · todo dia ${f.dia}</span>
+        </div>
+        <div class="amt">${brl(f.valor)}</div>
+        <button class="del" data-fix="${f.id}" aria-label="Remover ${esc(f.desc)}">×</button>
+      </div>`).join('');
+
+  $('listaFixos').querySelectorAll('[data-fix]').forEach(b =>
+    b.onclick = () => removerFixo(Number(b.dataset.fix)));
+}
+
+function apagar(id){
+  const alvo = dados.find(d => d.id === id);
+  const aviso = alvo?.fixo
+    ? 'Apagar este lançamento? Ele veio de um gasto fixo e não voltará neste mês.'
+    : 'Apagar este lançamento?';
+  if(!confirm(aviso)) return;
+  dados = dados.filter(d => d.id !== id);
+  gravar(KEY, dados); render();
+}
+
+function removerFixo(id){
+  const f = fixos.find(x => x.id === id);
+  if(!confirm(`Remover "${f?.desc}" dos fixos?\n\nOs lançamentos já feitos continuam no histórico.`)) return;
+  fixos = fixos.filter(x => x.id !== id);
+  gravar(RKEY, fixos); render();
+}
+
+// ---------- abas ----------
+function trocarAba(qual){
+  [['lista','viewLista','tabLista'],['dias','viewDias','tabDias'],['fixos','viewFixos','tabFixos']]
+    .forEach(([nome, view, tab]) => {
+      $(view).classList.toggle('on', nome === qual);
+      $(tab).classList.toggle('on', nome === qual);
+    });
+  window.scrollTo(0,0);
+}
+$('tabLista').onclick = () => trocarAba('lista');
+$('tabDias').onclick  = () => trocarAba('dias');
+$('tabFixos').onclick = () => trocarAba('fixos');
+
+// ---------- folhas ----------
+function parseValor(txt){
+  const t = String(txt).trim().replace(/[^\d.,]/g,'');
+  if(!t) return NaN;
+  const norm = t.includes(',') ? t.replace(/\./g,'').replace(',','.') : t;
+  return parseFloat(norm);
+}
+function desenhaChips(el, sel, onPick){
+  $(el).innerHTML = CATS.map(c => `<button class="chip${c===sel?' on':''}" data-c="${c}">${c}</button>`).join('');
+  $(el).querySelectorAll('.chip').forEach(b => b.onclick = () => onPick(b.dataset.c));
+}
+
+function abrirFolha(pre){
+  $('fValor').value = pre?.valor ?? '';
+  $('fDesc').value  = pre?.desc  ?? '';
+  $('fData').value  = pre?.data  ?? new Date().toISOString().slice(0,10);
+  catSel = pre?.cat ?? CATS[0];
+  $('fErr').classList.remove('on');
+  $('ocrBox').classList.remove('on');
+  $('ocrBox').innerHTML = '<span class="spin"></span><span id="ocrMsg">Lendo o recibo…</span>';
+  $('sheetNovo').classList.add('on');
+  pickCat(catSel);
+}
+function pickCat(c){ catSel = c; desenhaChips('chips', catSel, pickCat); }
+function pickCatFixo(c){ catFixo = c; desenhaChips('chipsFixo', catFixo, pickCatFixo); }
+
+$('btnSalvar').onclick = () => {
+  const valor = parseValor($('fValor').value);
+  const desc = $('fDesc').value.trim();
+  const data = $('fData').value;
+  const err = $('fErr');
+  if(!(valor > 0)){ err.textContent = 'Informe um valor maior que zero.'; err.classList.add('on'); return; }
+  if(!desc){ err.textContent = 'Escreva uma descrição.'; err.classList.add('on'); return; }
+  if(!data){ err.textContent = 'Escolha uma data.'; err.classList.add('on'); return; }
+
+  dados.push({ id: novoId(), valor: Math.round(valor*100)/100, desc, cat: catSel, data });
+  fechados = fechados.filter(x => x !== data);   // registrou gasto: o dia deixa de ser "sem gasto"
+  gravar(KEY, dados); gravar(FKEY, fechados);
+  render(); $('sheetNovo').classList.remove('on');
+};
+['fValor','fDesc','fData'].forEach(id => $(id).addEventListener('input', () => $('fErr').classList.remove('on')));
+$('btnCancelar').onclick = () => $('sheetNovo').classList.remove('on');
+$('sheetNovo').onclick = e => { if(e.target.id === 'sheetNovo') $('sheetNovo').classList.remove('on'); };
+$('btnNovo').onclick = () => abrirFolha();
+
+$('btnNovoFixo').onclick = () => {
+  $('xValor').value = ''; $('xDesc').value = ''; $('xDia').value = '';
+  catFixo = CATS[3]; pickCatFixo(catFixo);
+  $('xErr').classList.remove('on');
+  $('sheetFixo').classList.add('on');
+};
+$('btnCancelarFixo').onclick = () => $('sheetFixo').classList.remove('on');
+$('sheetFixo').onclick = e => { if(e.target.id === 'sheetFixo') $('sheetFixo').classList.remove('on'); };
+
+$('btnSalvarFixo').onclick = () => {
+  const valor = parseValor($('xValor').value);
+  const desc = $('xDesc').value.trim();
+  const dia = parseInt($('xDia').value, 10);
+  const err = $('xErr');
+  if(!(valor > 0)){ err.textContent = 'Informe um valor maior que zero.'; err.classList.add('on'); return; }
+  if(!desc){ err.textContent = 'Escreva uma descrição.'; err.classList.add('on'); return; }
+  if(!(dia >= 1 && dia <= 31)){ err.textContent = 'O dia precisa estar entre 1 e 31.'; err.classList.add('on'); return; }
+
+  fixos.push({ id: novoId(), valor: Math.round(valor*100)/100, desc, cat: catFixo, dia });
+  gravar(RKEY, fixos);
+  aplicarFixos();                 // se o dia já passou, lança agora mesmo
+  render();
+  $('sheetFixo').classList.remove('on');
+  trocarAba('fixos');
+};
+['xValor','xDesc','xDia'].forEach(id => $(id).addEventListener('input', () => $('xErr').classList.remove('on')));
+
+// ---------- OCR ----------
+$('btnFoto').onclick = () => $('fileInput').click();
+$('fileInput').onchange = async e => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if(!file) return;
+  abrirFolha();
+  $('ocrBox').classList.add('on');
+  try{
+    const { data } = await Tesseract.recognize(file, 'por', {
+      logger: m => {
+        const el = $('ocrMsg');
+        if(el && m.status === 'recognizing text') el.textContent = `Lendo o recibo… ${Math.round(m.progress*100)}%`;
+      }
+    });
+    aplicarOCR(data.text || '');
+    $('ocrBox').innerHTML = '<span>Confira os campos abaixo antes de salvar.</span>';
+  }catch(err){
+    $('ocrBox').innerHTML = '<span>Não consegui ler a imagem. Preencha na mão.</span>';
+  }
+};
+
+function aplicarOCR(texto){
+  const linhas = texto.split('\n');
+  let valor = null;
+  const alvo = linhas.find(l => /total|valor a pagar|vl\s*total/i.test(l));
+  const pegar = l => String(l).match(/(\d{1,3}(?:[.\s]\d{3})*|\d+)[,.](\d{2})\b/g) || [];
+  if(alvo){ const c = pegar(alvo); if(c.length) valor = parseValor(c[c.length-1]); }
+  if(!(valor > 0)){
+    const todos = pegar(texto).map(parseValor).filter(n => n > 0 && n < 1e6);
+    if(todos.length) valor = Math.max(...todos);
+  }
+  if(valor > 0) $('fValor').value = valor.toFixed(2).replace('.',',');
+
+  const md = texto.match(/(\d{2})[\/\-.](\d{2})[\/\-.](\d{2,4})/);
+  if(md){
+    let [, d, m, a] = md;
+    if(a.length === 2) a = '20' + a;
+    const s = `${a}-${m}-${d}`;
+    if(!isNaN(new Date(s + 'T12:00'))) $('fData').value = s;
+  }
+  const nome = linhas.map(l => l.trim()).find(l => l.replace(/[^A-Za-zÀ-ÿ]/g,'').length >= 5);
+  if(nome) $('fDesc').value = nome.slice(0,40);
+}
+
+// ---------- limite e backup ----------
+function pedirLimite(){
+  const v = prompt('Limite de gastos por mês (R$):', limite ? String(limite).replace('.',',') : '');
+  if(v === null) return;
+  const n = parseValor(v);
+  limite = (n > 0) ? n : 0;
+  localStorage.setItem(BKEY, String(limite));
+  render();
+}
+$('btnLimite').onclick = pedirLimite;
+$('budgetline').onclick = pedirLimite;
+
+$('btnExport').onclick = () => {
+  if(!dados.length){ alert('Não há nada para exportar ainda.'); return; }
+  const linhas = [['data','descricao','categoria','valor','origem']]
+    .concat(dados.map(d => [d.data, `"${d.desc.replace(/"/g,'""')}"`, d.cat, String(d.valor).replace('.',','), d.fixo ? 'fixo' : 'avulso']));
+  const csv = '\uFEFF' + linhas.map(l => l.join(';')).join('\n');
+  const url = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+  const a = document.createElement('a');
+  a.href = url; a.download = `caderneta-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+};
+
+// ---------- boot ----------
+carregar();
+aplicarFixos();
+pickCat(catSel);
+pickCatFixo(catFixo);
+render();
+
+// se o app ficar aberto e virar o dia, refaz as contas ao voltar do background
+document.addEventListener('visibilitychange', () => {
+  if(!document.hidden){ aplicarFixos(); render(); }
+});
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>
