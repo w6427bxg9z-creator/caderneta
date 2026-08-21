@@ -1,4 +1,4 @@
-const CACHE = 'caderneta-v4';
+const CACHE = 'caderneta-v6';
 const ARQUIVOS = [
   './',
   './index.html',

@@ -36,7 +36,8 @@ body{
 .mono{font-family:'Roboto Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
 
 header{padding:calc(env(safe-area-inset-top) + 26px) 0 0;text-align:center}
-.brand{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--soft);font-weight:600}
+.brand{font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);font-weight:600;line-height:1.6;text-wrap:balance}
+.brand span{opacity:.5;font-weight:500;white-space:nowrap}
 .period{font-size:12px;color:var(--soft);margin-top:2px}
 .total{font-family:'Roboto Mono',monospace;font-size:44px;font-weight:700;letter-spacing:-.02em;margin:14px 0 2px;font-variant-numeric:tabular-nums}
 .total.over{color:var(--stamp)}
@@ -166,8 +167,6 @@ input:focus,select:focus{outline:2px solid var(--ink);outline-offset:-1px}
 .spin{width:15px;height:15px;border:2px solid var(--rule);border-top-color:var(--ink);border-radius:50%;animation:sp .7s linear infinite;flex:none}
 @keyframes sp{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion: reduce){.spin{animation:none}.bar>i{transition:none}}
-.recado{font-style:italic;font-size:15px;color:var(--soft);text-align:center;line-height:1.4}
-.recado.grande{font-size:17px;color:var(--ink);opacity:.75}
 .foot{text-align:center;padding:26px 0 10px}
 .foot .stamp{display:inline-block;border:2px solid var(--stamp);color:var(--stamp);font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;padding:5px 12px;border-radius:4px;transform:rotate(-3deg);opacity:.75}
 </style>
@@ -176,7 +175,7 @@ input:focus,select:focus{outline:2px solid var(--ink);outline-offset:-1px}
 <div class="wrap">
 
 <header>
-  <div class="brand">Caderneta</div>
+  <div class="brand">Caderneta <span>— anota seus gastos futuzim</span></div>
   <div class="period" id="period">—</div>
   <div class="total mono" id="total">R$ 0,00</div>
   <div class="budgetline" id="budgetline">Toque para definir um limite mensal</div>
@@ -204,8 +203,7 @@ input:focus,select:focus{outline:2px solid var(--ink);outline-offset:-1px}
   <div class="foot">
     <button class="link" id="btnExport">Baixar backup .csv</button>
     <button class="link" id="btnLimite">Definir limite mensal</button>
-    <div class="recado" id="recadoFoot" style="margin-top:22px"></div>
-    <div style="margin-top:14px"><span class="stamp" id="stamp">Em dia</span></div>
+    <div style="margin-top:18px"><span class="stamp" id="stamp">Em dia</span></div>
   </div>
 </section>
 
@@ -322,7 +320,7 @@ input:focus,select:focus{outline:2px solid var(--ink);outline-offset:-1px}
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script>
 const CATS = ['Mercado','Comer fora','Transporte','Casa','Saúde','Lazer','Compras','Outro'];
-const RECADO = 'Anota os gastos futuzim';
+const RECADO = 'Anota seus gastos futuzim';
 const KEY  = 'caderneta.v1';
 const BKEY = 'caderneta.limite';
 const RKEY = 'caderneta.fixos';
@@ -464,7 +462,7 @@ $('btnFecharHoje').onclick = () => {
 function renderLista(mes){
   const lista = $('lista');
   if(mes.length === 0){
-    lista.innerHTML = `<div class="empty"><span class="recado grande">${RECADO}</span><br><br>Nada lançado neste mês ainda.</div>`;
+    lista.innerHTML = '<div class="empty">Nada lançado neste mês.<br>Comece pelo botão acima.</div>';
     return;
   }
   const ord = [...mes].sort((a,b)=> b.data.localeCompare(a.data) || b.id - a.id);
@@ -802,7 +800,6 @@ $('btnExport').onclick = () => {
 
 // ---------- boot ----------
 carregar();
-$('recadoFoot').textContent = RECADO;
 aplicarFixos();
 pickCat(catSel);
 pickCatFixo(catFixo);
